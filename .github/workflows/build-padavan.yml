@@ -18,7 +18,9 @@ jobs:
   build:
     runs-on: ubuntu-18.04
     if: github.event.repository.owner.id == github.event.sender.id
-
+    strategy:
+      matrix:
+        TNAME: [NEWIFI-D1, NEWIFI-MINI]
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -32,20 +34,19 @@ jobs:
         pkg-config zlib1g-dev libgmp3-dev libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget
     - name: Clone source code
       run: |
-        git clone --depth=1 https://github.com/chongshengB/rt-n56u.git /opt/rt-n56u
+        git clone --depth=1 https://github.com/hanwckf/rt-n56u.git /opt/rt-n56u
+        cp -f *.config /opt/rt-n56u/trunk/configs/templates/
         cd /opt/rt-n56u/toolchain-mipsel
         sh dl_toolchain.sh
         mkdir -p /opt/images/
     - name: Build Firmware
-      env:
-        TNAME: NEWIFI-D1
       run: |
         cd /opt/rt-n56u/trunk
-        if [ ! -f configs/templates/$TNAME.config ] ; then
-        echo "configs/templates/$TNAME.config not found "
-        exit 1
+        if [ ! -f configs/templates/${{ matrix.TNAME }}.config ] ; then
+          echo "configs/templates/${{ matrix.TNAME }}.config not found "
+          exit 1
         fi
-        cp -f configs/templates/$TNAME.config .config
+        cp -f configs/templates/${{ matrix.TNAME }}.config .config
         sed -i 's/CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE=n/CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE=y/g' .config
         ################################################################################################
         #因不同型号配置功能不一样，所以先把配置项删除，如果你自己要添加其他的，也要写上删除这一条，切记！！！
@@ -94,10 +95,9 @@ jobs:
         #格式如下：
         #sed -i '/自定义项/d' .config
         #echo "自定义项=y" >> .config
-        sed -i 's/bintray.com\/htop\/source\/download_file?file_path=/raw.githubusercontent.com\/hanwckf\/rt-n56u\/master\/trunk\/user\/htop\//' user/htop/Makefile  # 更改htop-3.0.2.tar.gz下载连接（原链接404了）
         #########################################################################################
         sudo ./clear_tree
-        sudo ./build_firmware_modify $TNAME 0
+        sudo ./build_firmware_modify ${{ matrix.TNAME }} 0
         sudo mv -f images/*.trx /opt/images/
     - name : Upload packages
       uses: actions/upload-artifact@master
