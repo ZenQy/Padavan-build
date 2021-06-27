@@ -34,10 +34,7 @@ jobs:
         pkg-config zlib1g-dev libgmp3-dev libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget
     - name: Clone source code
       run: |
-        echo $PWD
-        ls
-        git clone --depth=1 https://github.com/hanwckf/rt-n56u.git /opt/rt-n56u
-        cp -f *.config /opt/rt-n56u/trunk/configs/templates/
+        git clone --depth=1 https://github.com/a0575/padavan.git /opt/rt-n56u
         cd /opt/rt-n56u/toolchain-mipsel
         sh dl_toolchain.sh
         mkdir -p /opt/images/
