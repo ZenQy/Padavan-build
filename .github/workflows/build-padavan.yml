@@ -20,7 +20,7 @@ jobs:
     if: github.event.repository.owner.id == github.event.sender.id
     strategy:
       matrix:
-        TNAME: [NEWIFI-D1 NEWIFI-MINI RM2100]
+        TNAME: [NEWIFI-D1, NEWIFI-MINI, RM2100]
     steps:
     - name: Checkout
       uses: actions/checkout@master
